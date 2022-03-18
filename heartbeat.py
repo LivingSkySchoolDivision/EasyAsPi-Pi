@@ -40,7 +40,7 @@ ImageDraw.Draw(wait).text((0,15),"Updating", font=ImageFont.truetype(UserFont, 4
 disp.display(wait)
 img = Image.new('RGB', (disp.width, disp.height), color="Black")
 
-print(serialize(my_dict))
+print(get_model(),get_serial())
 
 #with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
 #    if r.ok:
