@@ -60,7 +60,7 @@ if not path.exists(".dnr"):
     #with open("version", "w") as f:
         #f.write(resp["versionNumber"])
     sleep(2)
-    system("reboot")
+    system("reboot now")
 
 #with open("version","r") as f:
     #version = f.readline().strip()
