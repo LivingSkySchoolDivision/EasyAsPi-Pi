@@ -71,5 +71,5 @@ if not path.exists(".dnr"):
     #system("reboot")
 
 print(resp)
-text = str(resp["assignedNumber"])
-ImageDraw.Draw(img).text((0,-13),text, font=ImageFont.truetype(UserFont, 94), fill="White")
+ImageDraw.Draw(img).text((0,-13),str(resp["assignedNumber"]), font=ImageFont.truetype(UserFont, 94), fill="White")
+disp.display(img)
