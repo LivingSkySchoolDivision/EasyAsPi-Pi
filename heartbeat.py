@@ -11,7 +11,8 @@ def serialize(things):
     for key in things:
         if  not is_first:
             string += ","
-        is_first = False
+        else:
+            is_first = False
         string += '"'
         string += key
         string += '"'
@@ -19,6 +20,7 @@ def serialize(things):
         string += '"'
         string += things[key]
         string += '"'
+    string += "}"
 def get_serial():
     with open("/proc/cpuinfo","r") as f:
         for line in f:
