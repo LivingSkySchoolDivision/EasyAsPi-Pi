@@ -64,4 +64,4 @@ gasses = gas.read_all()
 my_dict["oxidisingGasLevel"]=gasses.oxidising
 my_dict["reducingGasLevel"]=gasses.reducing
 my_dict["nH3Level"]=gasses.nh3
-requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"})
+print(requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}).json())
