@@ -48,22 +48,24 @@ ImageDraw.Draw(wait).text((0,15),"Updating", font=ImageFont.truetype(UserFont, 4
 disp.display(wait)
 img = Image.new('RGB', (disp.width, disp.height), color="Black")
 
-with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
-    if r.ok:
-        resp = r.json
-    else:
-        #put logging here
-        print(r.json)
-        raise Exception("logs")
+print(serialize(my_dict))
 
-if not path.exists(".dnr"):
-    with open(".dnr","w") as f:
-        f.write("")
-    with open("/etc/hostname","w") as f:
-        f.write("Eap"+str(resp["assignedNumber"]))
-    #with open("version", "w") as f:
-        #f.write(resp["versionNumber"])
-    system("reboot")
+#with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
+#    if r.ok:
+#        resp = r.json
+#    else:
+#        #put logging here
+#        print(r.json)
+#        raise Exception("logs")
+
+#if not path.exists(".dnr"):
+#    with open(".dnr","w") as f:
+#        f.write("")
+#    with open("/etc/hostname","w") as f:
+#        f.write("Eap"+str(resp["assignedNumber"]))
+#    #with open("version", "w") as f:
+#        #f.write(resp["versionNumber"])
+#    system("reboot")
 
 #with open("version","r") as f:
     #version = f.readline().strip()
@@ -74,4 +76,4 @@ if not path.exists(".dnr"):
         #f.write(resp["versionNumber"])
     #system("reboot")
 
-ImageDraw.Draw(img).text((0,-13),str(resp["assignedNumber"]), font=ImageFont.truetype(UserFont, 94), fill="White")
+#ImageDraw.Draw(img).text((0,-13),str(resp["assignedNumber"]), font=ImageFont.truetype(UserFont, 94), fill="White")
