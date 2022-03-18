@@ -70,6 +70,6 @@ if not path.exists(".dnr"):
         #f.write(resp["versionNumber"])
     #system("reboot")
 
-    print(resp)
+print(resp)
 text = str(resp["assignedNumber"])
 ImageDraw.Draw(img).text((0,-13),text, font=ImageFont.truetype(UserFont, 94), fill="White")
