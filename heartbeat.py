@@ -16,17 +16,9 @@ def serialize(things):
         string += key
         string += '"'
         string += ":"
-        if type(things[key]) == str:
-            string += '"'
-            string += things[key]
-            string += '"'
-        elif type(things[key]) == bool:
-            if things[key]:
-                string += "true"
-            else:
-                string += "false"
-        else:
-            string += str(things[key])
+        string += '"'
+        string += things[key]
+        string += '"'
 def get_serial():
     with open("/proc/cpuinfo","r") as f:
         for line in f:
