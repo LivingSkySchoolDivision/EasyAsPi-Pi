@@ -45,7 +45,7 @@ img = Image.new('RGB', (disp.width, disp.height), color="Black")
 
 with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
     if r.ok:
-        resp = r.json
+        resp = r.json()
         
     else:
         #put logging here
