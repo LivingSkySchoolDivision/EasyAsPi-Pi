@@ -53,7 +53,8 @@ with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"applicat
         resp = r.json
     else:
         #put logging here
-        raise Exception("logs")
+        #raise Exception("logs")
+        print(r.json)
 
 if not path.exists(".dnr"):
     with open(".dnr","w") as f:
