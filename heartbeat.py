@@ -56,9 +56,10 @@ if not path.exists(".dnr"):
     with open(".dnr","w") as f:
         f.write("")
     with open("/etc/hostname","w") as f:
-        f.write("Eap"+str(resp["assignedNumber"]))
+        f.write("EaP"+str(resp["assignedNumber"]))
     #with open("version", "w") as f:
         #f.write(resp["versionNumber"])
+    sleep(2)
     system("reboot")
 
 #with open("version","r") as f:
