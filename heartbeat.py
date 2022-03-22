@@ -54,7 +54,7 @@ with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"applicat
 
 if not path.exists("/home/pi/EasyAsPi-Pi/.dnr"):
     with open("/etc/hostname","w") as f:
-        f.write("EaP"+str(resp["assignedNumber"]))
+        f.write("EaP"+my_dict["deviceSerialNumber"])
     with open("version", "w") as f:
         f.write(resp["versionNumber"])
     with open("/home/pi/EasyAsPi-Pi/.dnr","w") as f:
@@ -70,11 +70,18 @@ if resp["versionNumber"] != version:
     with open("version","w") as f:
         f.write(resp["versionNumber"])
     system("reboot")
+
+with open("/etc/hostname","r") as f:
+    hostname = f.readline().strip()
+if hostname != f"EaP{get_serial()}":
+    with open("/etc/hostname","w") as f:
+        f.write(f"EaP{get_serial()}")
+        
 text_str = ""
 if resp["assignedNumber"]<100:
     text_str+="0"
-if resp["assignedNumber"]<10:
-    text_str+="0"
+    if resp["assignedNumber"]<10:
+        text_str+="0"
 text_str+=str(resp["assignedNumber"])
 ImageDraw.Draw(img).text((0,-13),text_str, font=ImageFont.truetype(UserFont, 94), fill="White")
 disp.display(img)
