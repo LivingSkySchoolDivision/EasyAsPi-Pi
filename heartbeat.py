@@ -33,6 +33,7 @@ def get_model():
             if line[0:5]=="Model":
                 return line[9:-1]
 
+reboot = False
 resp = None
 URL = "https://envirosaurus.lskysd.ca/Heartbeat"
 my_dict = {"deviceSerialNumber":get_serial(),"deviceModel":get_model()}
@@ -59,14 +60,14 @@ if not path.exists("/home/pi/EasyAsPi-Pi/.dnr"):
         f.write(resp["versionNumber"])
     with open("/home/pi/EasyAsPi-Pi/.dnr","w") as f:
         f.write("dnr")
-    system("reboot")
+    reboot = True
 
 with open("/etc/hostname","r") as f:
     hostname = f.readline().strip()
 if hostname != f"EaP{get_serial()}":
     with open("/etc/hostname","w") as f:
         f.write(f"EaP{get_serial()}")
-    system("reboot")
+    reboot = True
 
 with open("version","r") as f:
     version = f.readline().strip()
@@ -74,6 +75,9 @@ if resp["versionNumber"] != version:
     system("git pull")
     with open("version","w") as f:
         f.write(resp["versionNumber"])
+    reboot = True
+
+if reboot:
     system("reboot")
 
 text_str = ""
