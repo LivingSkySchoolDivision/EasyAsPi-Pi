@@ -59,16 +59,6 @@ if not path.exists("/home/pi/EasyAsPi-Pi/.dnr"):
         f.write(resp["versionNumber"])
     with open("/home/pi/EasyAsPi-Pi/.dnr","w") as f:
         f.write("dnr")
-    sleep(2)
-    system("reboot now")
-
-with open("version","r") as f:
-    version = f.readline().strip()
-
-if resp["versionNumber"] != version:
-    system("git pull")
-    with open("version","w") as f:
-        f.write(resp["versionNumber"])
     system("reboot")
 
 with open("/etc/hostname","r") as f:
@@ -76,7 +66,16 @@ with open("/etc/hostname","r") as f:
 if hostname != f"EaP{get_serial()}":
     with open("/etc/hostname","w") as f:
         f.write(f"EaP{get_serial()}")
-        
+    system("reboot")
+
+with open("version","r") as f:
+    version = f.readline().strip()
+if resp["versionNumber"] != version:
+    system("git pull")
+    with open("version","w") as f:
+        f.write(resp["versionNumber"])
+    system("reboot")
+
 text_str = ""
 if resp["assignedNumber"]<100:
     text_str+="0"
