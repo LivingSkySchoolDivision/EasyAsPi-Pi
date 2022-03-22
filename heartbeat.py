@@ -52,7 +52,7 @@ with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"applicat
         print(r.json())
         raise Exception("logs")
 
-if not path.exists("/home/pi/EasyAsPi-pi/.dnr"):
+if not path.exists("/home/pi/EasyAsPi-Pi/.dnr"):
     with open("/etc/hostname","w") as f:
         f.write("EaP"+str(resp["assignedNumber"]))
     with open("version", "w") as f:
