@@ -78,7 +78,7 @@ if resp["versionNumber"] != version:
     reboot = True
 
 if reboot:
-    system("reboot")
+    system("sudo reboot")
 
 text_str = ""
 if resp["assignedNumber"]<100:
