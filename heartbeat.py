@@ -47,20 +47,17 @@ img = Image.new('RGB', (disp.width, disp.height), color="Black")
 with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
     if r.ok:
         resp = r.json()
-        
     else:
         #put logging here
         print(r.json())
         raise Exception("logs")
 
-if not path.exists("/home/pi/EasyAsPi-Pi/.dnr"):
+if not path.exists("version"):
     with open("/etc/hostname","w") as f:
         f.write("EaP"+my_dict["deviceSerialNumber"])
     with open("version", "w") as f:
         f.write(resp["versionNumber"])
-    with open("/home/pi/EasyAsPi-Pi/.dnr","w") as f:
-        f.write("dnr")
-    reboot = True
+    system("sudo reboot")
 
 with open("/etc/hostname","r") as f:
     hostname = f.readline().strip()
