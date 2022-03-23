@@ -1,4 +1,3 @@
-from cmath import log
 import logging
 logging.basicConfig(filename = "/var/log/EasyAsPi",level = logging.DEBUG, format = "%(asctime)s:%(levelname)s:on line %(lineno)d:%(message)s")
 logging.debug("Imported logging")
