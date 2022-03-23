@@ -16,6 +16,9 @@ logging.debug("OSresources imported")
 logging.debug("Importing requests")
 import requests
 logging.debug("Requests Imported")
+logging.debug("importing sleep")
+from time import sleep
+logging.debug("sleep imported")
 
 def serialize(things):
     logging.debug("Began serializing")
@@ -88,19 +91,25 @@ logging.debug("Dictionary created")
 logging.debug("Creating background for image")
 img = Image.new('RGB', (disp.width, disp.height), color="Black")
 logging.debug("Background created")
-
-logging.debug("Making post request now")
-with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}, timeout = 20) as r:
-    logging.debug("Request made")
-    logging.debug("Checking if it received a good response")
-    if r.ok:
-        logging.info("Received a good response")
-        logging.debug("assigning response body to resp")
-        resp = r.json()
-        logging.debug("Response assigned")
-    else:
-        logging.error(f"Received bad response:{r.json()}")
-        raise Exception("Received bad response")
+for i in range(10):
+    try:
+        logging.info("Making post request now")
+        r =  requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"})
+        logging.info("Response received")
+    except Exception as e:
+        logging.error(e)
+        sleep(3)
+        if i==9:
+            raise e
+logging.debug("Checking if it received a good response")
+if r.ok:
+    logging.info("Received a good response")
+    logging.debug("assigning response body to resp")
+    resp = r.json()
+    logging.debug("Response assigned")
+else:
+    logging.error(f"Received bad response:{r.json()}")
+    raise Exception("Received bad response")
 logging.debug("Checking if version file exisits.")
 if not path.exists("/home/pi/EasyAsPi-Pi/version"):
     logging.debug("It did not")
