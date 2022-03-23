@@ -134,4 +134,4 @@ logging.debug("reading nh3 levels")
 my_dict["nH3Level"]=gasses.nh3
 logging.debug("nh3 levels read")
 logging.info("sending post request")
-logging.info(requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}).json)
+logging.info(requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}, timeout = 20).json)

@@ -90,7 +90,7 @@ img = Image.new('RGB', (disp.width, disp.height), color="Black")
 logging.debug("Background created")
 
 logging.debug("Making post request now")
-with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}) as r:
+with requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"}, timeout = 20) as r:
     logging.debug("Request made")
     logging.debug("Checking if it received a good response")
     if r.ok:
