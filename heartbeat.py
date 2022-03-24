@@ -11,7 +11,7 @@ logging.debug("importing font")
 from fonts.ttf import RobotoMedium as UserFont
 logging.debug("Font imported")
 logging.debug("Importing OS resources")
-from os import path, system
+from os import path, system, getcwd
 logging.debug("OSresources imported")
 logging.debug("Importing requests")
 import requests
@@ -110,14 +110,18 @@ if r.ok:
 else:
     logging.error(f"Received bad response:{r.json()}")
     raise Exception("Received bad response")
+
+logging.debug("retreiving working directory")
+current_directory=getcwd()+'/'
+logging.debug("working directory retrieved and stored")
 logging.debug("Checking if version file exisits.")
-if not path.exists("/home/pi/EasyAsPi-Pi/version"):
+if not path.exists(current_directory +"version"):
     logging.debug("It did not")
     logging.info("Editing hostname.")
     with open("/etc/hostname","w") as f:
         f.write("EaP"+my_dict["deviceSerialNumber"])
     logging.info("Creating version file")
-    with open("/home/pi/EasyAsPi-Pi/version", "w") as f:
+    with open(current_directory +"version", "w") as f:
         f.write(resp["versionNumber"])
     logging.info("restarting")
     system("sudo reboot")
@@ -146,7 +150,7 @@ else:
     logging.debug("host needn't be changed")
 logging.info("Checking version")
 logging.debug("opening version file")
-with open("/home/pi/EasyAsPi-Pi/version","r") as f:
+with open(current_directory +"version","r") as f:
     logging.debug("version file opened")
     logging.debug("reading, stripping, and assigning info from version file")
     version = f.readline().strip()
@@ -159,7 +163,7 @@ if resp["versionNumber"] != version:
     logging.debug("Git Pull performed")
     logging.info("Updating version number")
     logging.debug("opening version file as write")
-    with open("/home/pi/EasyAsPi-Pi/version","w") as f:
+    with open(current_directory +"version","w") as f:
         logging.debug("version file opened as write")
         logging.debug("writing version number")
         f.write(resp["versionNumber"])
@@ -198,7 +202,7 @@ text_str+=str(resp["assignedNumber"])
 logging.debug("assigned number appended")
 logging.info("Drawing assigned number on the image")
 ImageDraw.Draw(img).text((0,-13),text_str, font=ImageFont.truetype(UserFont, 94), fill="White")
-logging.debug("number drawn on screen")
+logging.debug("number drawn on image")
 logging.info("Displaying assigned number on screen")
 disp.display(img)
 logging.debug("image displayed")
