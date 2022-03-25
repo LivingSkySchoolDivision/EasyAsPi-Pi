@@ -1,5 +1,5 @@
 import logging
-logging.basicConfig(filename = "/var/log/EasyAsPi",level = logging.DEBUG, format = "%(asctime)s:%(levelname)s:on line %(lineno)d:%(message)s")
+logging.basicConfig(filename = "/var/log/EasyAsPi.log",level = logging.DEBUG, format = "%(asctime)s:%(levelname)s:on line %(lineno)d:%(message)s")
 logging.debug("Imported logging")
 logging.debug("Importing display module")
 import ST7735
