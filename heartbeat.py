@@ -150,7 +150,6 @@ if not api_success:
     display_error_text_on_screen("COMMS FAIL".format(attempt_number), 20)
     quit()
 
-
 # #########################################################
 # Check the software version based on API response
 # #########################################################
@@ -166,8 +165,9 @@ log_this(f"Found remote version: {api_response['versionNumber']}")
 
 if api_response["versionNumber"] != local_version:
     display_text_on_screen("Updating...", 20)
-    log_this("Performing git pull")
-    system("git pull --no-rebase")
+    log_this(f"Performing git pull in {current_directory}")
+    system(f"cd {current_directory}")
+    system("git pull")
     log_this("Updating version number")
     with open(current_directory +"version","w") as version_file:
         display_text_on_screen(api_response['versionNumber'], 20)
