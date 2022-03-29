@@ -1,27 +1,25 @@
 import logging
-logging.basicConfig(filename = "/var/log/EasyAsPi.log",level = logging.DEBUG, format = "%(asctime)s:%(levelname)s:on line %(lineno)d:%(message)s")
-logging.debug("Imported logging")
-logging.debug("Importing display module")
 import ST7735
-logging.debug("Display module imported")
-logging.debug("Importing image handler")
 from PIL import Image, ImageDraw, ImageFont
-logging.debug("Image handler imported")
-logging.debug("importing font")
-from fonts.ttf import RobotoMedium as UserFont
-logging.debug("Font imported")
-logging.debug("Importing OS resources")
+from fonts.ttf import RobotoMedium
 from os import path, system, getcwd
-logging.debug("OSresources imported")
-logging.debug("Importing requests")
 import requests
-logging.debug("Requests Imported")
-logging.debug("importing sleep")
 from time import sleep
-logging.debug("sleep imported")
+
+API_HEARTBEAT_URI = "https://envirosaurus.lskysd.ca/Heartbeat"
+
+
+# #########################################################
+# Function definitions and initialization stuff
+# #########################################################
+
+logging.basicConfig(filename = "/var/log/EasyAsPi.log",level = logging.DEBUG, format = "%(asctime)s:%(levelname)s:on line %(lineno)d:%(message)s")
+
+def log_this(text):
+    print(text)
+    logging.info(text)
 
 def serialize(things):
-    logging.debug("Began serializing")
     string = "{"
     is_first = True
     for key in things:
@@ -37,173 +35,173 @@ def serialize(things):
         string += things[key]
         string += '"'
     string += "}"
-    logging.debug("Finished Serializing")
     return string
+
 def get_serial():
-    logging.debug("Opening /proc/cpuinfo")
-    with open("/proc/cpuinfo","r") as f:
-        logging.debug("opened /proc/cpuinfo")
-        logging.debug("Reading in line")
-        for line in f:
-            logging.debug("line read")
-            logging.debug("Checking to see if line begins with 'Serial'")
+    with open("/proc/cpuinfo","r") as cpuinfo_file:
+        for line in cpuinfo_file:
             if line[0:6]=="Serial":
-                logging.debug("It did")
-                logging.debug("returning character 10 to character -1")
                 return line[10:-1]
+
 def get_model():
-    logging.debug("Opening /proc/cpuinfo")
-    with open("/proc/cpuinfo","r") as f:
-        logging.debug("opened")
-        logging.debug("reading in lines")
-        for line in f:
-            logging.debug("line read")
-            logging.debug("Checking if line begins with 'model'")
+    with open("/proc/cpuinfo","r") as cpuinfo_file:
+        for line in cpuinfo_file:
             if line[0:5]=="Model":
-                logging.debug("It did")
-                logging.debug("returning charcters 9 to -1")
                 return line[9:-1]
 
-logging.debug("Creating display object")
-disp = ST7735.ST7735(port=0,cs=1,dc=9,backlight=12,rotation=90,spi_speed_hz=10000000)
-logging.debug("Display object created")
-logging.debug("Initializing display")
-disp.begin()
-logging.debug("Display initialized")
-logging.debug("Creating 'Updating' background")
-wait = Image.new('RGB', (disp.width, disp.height), color="Black")
-logging.debug("'Updating' background created")
-logging.debug("Drawing 'Updating' text")
-ImageDraw.Draw(wait).text((0,15),"Updating", font=ImageFont.truetype(UserFont, 40), fill="White")
-logging.debug("'Updating' text Drawn")
-logging.debug("Displaying 'Updating'")
-disp.display(wait)
-logging.debug("'Updating' displayed")
-logging.debug("Creating reboot flag")
+# Initialize the display
+onboardScreen = ST7735.ST7735(port=0,cs=1,dc=9,backlight=12,rotation=90,spi_speed_hz=10000000)
+onboardScreen.begin()
+
+def display_text_on_screen(text, size=40, yoffset=15):
+    newImage = Image.new('RGB', (onboardScreen.width, onboardScreen.height), color="Black")
+    ImageDraw.Draw(newImage).text((0,yoffset),text, font=ImageFont.truetype(RobotoMedium, size), fill="Gray")
+    onboardScreen.display(newImage)
+
+def display_special_text_on_screen(text, size=40, yoffset=15):
+    newImage = Image.new('RGB', (onboardScreen.width, onboardScreen.height), color="Blue")
+    ImageDraw.Draw(newImage).text((0,yoffset),text, font=ImageFont.truetype(RobotoMedium, size), fill="white")
+    onboardScreen.display(newImage)
+
+def display_error_text_on_screen(text, size=40, yoffset=15):
+    newImage = Image.new('RGB', (onboardScreen.width, onboardScreen.height), color="Red")
+    ImageDraw.Draw(newImage).text((0,yoffset),text, font=ImageFont.truetype(RobotoMedium, size), fill="white")
+    onboardScreen.display(newImage)
+
+display_text_on_screen("Initializing...", 20)
+
+# Initialize a reboot flag that we'll use later
 reboot = False
-logging.debug("reboot flag created")
-logging.debug("assigning URL")
-URL = "https://envirosaurus.lskysd.ca/Heartbeat"
-logging.debug("URL assigned")
-logging.debug("Creating dictionary")
-my_dict = {"deviceSerialNumber":get_serial(),"deviceModel":get_model()}
-logging.debug("Dictionary created")
-logging.debug("Creating background for image")
-img = Image.new('RGB', (disp.width, disp.height), color="Black")
-logging.debug("Background created")
-for i in range(10):
+
+# #########################################################
+# Check for important files that might need to be created
+# #########################################################
+current_directory= f"{path.dirname(__file__)}/"
+if not path.exists(current_directory +"version"):
+    log_this("Creating empty version file")
+    with open(current_directory +"version", "w") as version_file:
+        version_file.write("DEFAULT")
+
+
+# #########################################################
+# Check to see if we need to change the hostname
+# #########################################################
+
+# Check hostname to make sure it's accurate
+expected_hostname =f"EaP{get_serial()}"
+display_text_on_screen("Checking hostname...", 20)
+
+with open("/etc/hostname","r") as hostname_file:
+    hostname = hostname_file.readline().strip()
+
+if hostname != expected_hostname:
+    log_this("changing hostname")
+    sleep(5)
+    with open("/etc/hostname","w") as hostname_file:
+        hostname_file.write(expected_hostname)
+    log_this("Rebooting to change hostname in 5 seconds...")
+    display_text_on_screen("Rebooting for hostname...", 15)
+    sleep(5)
+    system("/sbin/reboot")
+    quit()
+
+
+# #########################################################
+# Attempt to register with API
+# #########################################################
+api_success = False
+
+# Build heartbeat payload
+heartbeat_request_content = {"deviceSerialNumber":get_serial(),"deviceModel":get_model()}
+
+# Wait a few seconds for WiFi to connect...
+log_this("Waiting for WiFi...")
+display_text_on_screen("Waiting for WiFi...", 20)
+sleep(10)
+
+for attempt_number in range(10):
+    log_this(f"Making request to API {attempt_number}: " + API_HEARTBEAT_URI)
+    display_text_on_screen(f"API {attempt_number+1}", 20)
     try:
-        logging.info("Making post request now")
-        r =  requests.post(URL,data=serialize(my_dict),headers={"Content-Type":"application/json"})
-        logging.info("Response received")
+        response =  requests.post(API_HEARTBEAT_URI,data=serialize(heartbeat_request_content),headers={"Content-Type":"application/json"})
+        api_response = response.json()
+
+        if response.ok:
+            display_text_on_screen(f"API {attempt_number+1} OK", 20)
+            log_this("Received response from API")
+            api_success = True
+            break
+        else:
+            display_error_text_on_screen(f"API {attempt_number+1} FAIL", 20)
+            logging.error(f"Received error from API:{api_response}")
+            print(api_response)
     except Exception as e:
         logging.error(e)
-        sleep(3)
-        if i==9:
-            raise e
-logging.debug("Checking if it received a good response")
-if r.ok:
-    logging.info("Received a good response")
-    logging.debug("assigning response body to resp")
-    resp = r.json()
-    logging.debug("Response assigned")
-else:
-    logging.error(f"Received bad response:{r.json()}")
-    raise Exception("Received bad response")
+        display_error_text_on_screen(f"API {attempt_number+1} FAIL (E)", 20)
+        log_this("ERROR RETRIEVING FROM API")
+        sleep(2)
+    if api_success:
+        break
+    display_error_text_on_screen("Retry in 10...", 20)
+    sleep(10)
 
-logging.debug("retreiving working directory")
-current_directory=getcwd()+'/'
-logging.debug("working directory retrieved and stored")
-logging.debug("Checking if version file exisits.")
-if not path.exists(current_directory +"version"):
-    logging.debug("It did not")
-    logging.info("Editing hostname.")
-    with open("/etc/hostname","w") as f:
-        f.write("EaP"+my_dict["deviceSerialNumber"])
-    logging.info("Creating version file")
-    with open(current_directory +"version", "w") as f:
-        f.write(resp["versionNumber"])
-    logging.info("restarting")
-    system("sudo reboot")
-else:
-    logging.info("Version file already existed")
-logging.debug("Opening hostname file as read")
-with open("/etc/hostname","r") as f:
-    logging.debug("hostname file opened")
-    logging.debug("reading, striping, and assigning the info from the file")
-    hostname = f.readline().strip()
-    logging.debug("file info read, stripped, and assigned")
-logging.debug("checking if information is correct")
-if hostname != f"EaP{get_serial()}":
-    logging.debug("It was not")
-    logging.info("changing hostname")
-    logging.debug("openening hostname file as write")
-    with open("/etc/hostname","w") as f:
-        logging.debug("hostname file opened")
-        logging.debug("writing to hostname file")
-        f.write(f"EaP{get_serial()}")
-        logging.debug("hostname file written")
-    logging.debug("Raising the reboot flag for hostname")
+if not api_success:
+    log_this("Could not get response from API. Quitting.")
+    display_error_text_on_screen("COMMS FAIL".format(attempt_number), 20)
+    quit()
+
+
+# #########################################################
+# Check the software version based on API response
+# #########################################################
+
+log_this("Checking version")
+display_text_on_screen("Version check...", 20)
+
+with open(current_directory +"version","r") as version_file:
+    local_version = version_file.readline().strip()
+
+log_this(f"Found local version: {local_version}")
+log_this(f"Found remote version: {api_response['versionNumber']}")
+
+if api_response["versionNumber"] != local_version:
+    display_text_on_screen("Updating...", 20)
+    log_this("Performing git pull")
+    system("git pull --no-rebase")
+    log_this("Updating version number")
+    with open(current_directory +"version","w") as version_file:
+        display_text_on_screen(api_response['versionNumber'], 20)
+        version_file.write(api_response["versionNumber"])
     reboot = True
-    logging.info("Raised the reboot flag for hostname")
 else:
-    logging.debug("host needn't be changed")
-logging.info("Checking version")
-logging.debug("opening version file")
-with open(current_directory +"version","r") as f:
-    logging.debug("version file opened")
-    logging.debug("reading, stripping, and assigning info from version file")
-    version = f.readline().strip()
-    logging.debug("read, stripped, and a assigned info from version file")
-logging.debug("checking if an update is available")
-if resp["versionNumber"] != version:
-    logging.debug("An update is available")
-    logging.info("Performing git pull")
-    system("git pull")
-    logging.debug("Git Pull performed")
-    logging.info("Updating version number")
-    logging.debug("opening version file as write")
-    with open(current_directory +"version","w") as f:
-        logging.debug("version file opened as write")
-        logging.debug("writing version number")
-        f.write(resp["versionNumber"])
-        logging.debug("version number written")
-    logging.debug("raising reboot flag")
-    reboot = True
-    logging.info("Raised the reboot flag for version")
-logging.debug("Checking if reboot flag is raised")
+    display_text_on_screen("Version OK", 20)
+    log_this("Version OK")
+
+# Check if we need to reboot from the reboot flag
 if reboot:
-    logging.debug("reboot flag was raised")
-    logging.info("Rebooting due to flag being raised")
-    system("sudo reboot")
-    logging.error("Failed to reboot do to raised flag")
-logging.info("adding leading 0s to assigned number.")
-logging.debug("creating empty string")
+    log_this("Rebooting due to flag being raised")
+    display_special_text_on_screen("REBOOTING...", 20)
+    system("/sbin/reboot")
+    quit()
+
+
+# #########################################################
+# Display the assigned number on the onboard screen
+# #########################################################
+
 text_str = ""
-logging.debug("empty string created")
-logging.debug("Checking to to see if the number is less than 100")
-if resp["assignedNumber"]<100:
-    logging.debug("number is less than 100")
-    logging.debug("prepending 0")
+if api_response["assignedNumber"]<100:
     text_str+="0"
-    logging.debug("0 prepended")
-    logging.debug("checking if the number is less than 10")
-    if resp["assignedNumber"]<10:
-        logging.debug("the number is less than 10")
-        logging.debug("prepending 0")
+    if api_response["assignedNumber"]<10:
         text_str+="0"
-        logging.debug("0 prepended")
-    else:
-        logging.debug("number greater than or equal to 10, no 0 required")
-else:
-    logging.debug("number greater than or equal to 100, no 0s required")
-logging.debug("appending assigned number to leading 0s")
-text_str+=str(resp["assignedNumber"])
-logging.debug("assigned number appended")
-logging.info("Drawing assigned number on the image")
-ImageDraw.Draw(img).text((0,-13),text_str, font=ImageFont.truetype(UserFont, 94), fill="White")
-logging.debug("number drawn on image")
-logging.info("Displaying assigned number on screen")
-disp.display(img)
-logging.debug("image displayed")
-logging.info("FIN")
+
+log_this("Displaying assigned number on screen: " + text_str)
+text_str+=str(api_response["assignedNumber"])
+display_text_on_screen(text_str, 94, -15)
+
+
+# #########################################################
+# Done!
+# #########################################################
+
+log_this("FIN")
