@@ -166,8 +166,7 @@ log_this(f"Found remote version: {api_response['versionNumber']}")
 if api_response["versionNumber"] != local_version:
     display_text_on_screen("Updating...", 20)
     log_this(f"Performing git pull in {current_directory}")
-    system(f"cd {current_directory}")
-    system("git fetch --all && git reset --hard origin/main")
+    system(f"cd {current_directory} && git fetch --all && git reset --hard origin/main")    
     log_this("Updating version number")
     with open(current_directory +"version","w") as version_file:
         display_text_on_screen(api_response['versionNumber'], 20)
