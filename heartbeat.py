@@ -55,7 +55,7 @@ onboardScreen.begin()
 
 def display_text_on_screen(text, size=40, yoffset=15):
     newImage = Image.new('RGB', (onboardScreen.width, onboardScreen.height), color="Black")
-    ImageDraw.Draw(newImage).text((0,yoffset),text, font=ImageFont.truetype(RobotoMedium, size), fill="Gray")
+    ImageDraw.Draw(newImage).text((0,yoffset),text, font=ImageFont.truetype(RobotoMedium, size), fill="Blue")
     onboardScreen.display(newImage)
 
 def display_special_text_on_screen(text, size=40, yoffset=15):
