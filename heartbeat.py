@@ -74,16 +74,6 @@ display_text_on_screen("Initializing...", 20)
 reboot = False
 
 # #########################################################
-# Check for important files that might need to be created
-# #########################################################
-current_directory= f"{path.dirname(__file__)}/"
-if not path.exists(current_directory +"version"):
-    log_this("Creating empty version file")
-    with open(current_directory +"version", "w") as version_file:
-        version_file.write("DEFAULT")
-
-
-# #########################################################
 # Check to see if we need to change the hostname
 # #########################################################
 
@@ -166,14 +156,12 @@ log_this(f"Found remote version: {api_response['versionNumber']}")
 if api_response["versionNumber"] != local_version:
     display_text_on_screen("Updating...", 20)
     log_this(f"Performing git pull in {current_directory}")
-    system(f"cd {current_directory} && git fetch --all && git reset --hard origin/main")    
-    log_this("Updating version number")
-    with open(current_directory +"version","w") as version_file:
-        display_text_on_screen(api_response['versionNumber'], 20)
-        version_file.write(api_response["versionNumber"])
+    system(f"cd {current_directory} && git fetch --all && git reset --hard origin/main")
+    sleep(10)
     reboot = True
 else:
     display_text_on_screen("Version OK", 20)
+    sleep(1)
     log_this("Version OK")
 
 # Check if we need to reboot from the reboot flag
